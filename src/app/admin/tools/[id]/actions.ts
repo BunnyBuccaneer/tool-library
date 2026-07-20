@@ -178,3 +178,114 @@ export async function updateTool(
   const id = formData.get("id") as string;
   redirect(`/admin/tools/${id}`);
 }
+// ── Create Tool ────────────────────────────────────────────────────────
+
+interface CreateToolActionState {
+  success: boolean;
+  error: string | null;
+}
+
+export async function createTool(
+  _prevState: CreateToolActionState,
+  formData: FormData
+): Promise<CreateToolActionState> {
+  let newToolId: string | null = null;
+
+  try {
+    const assetId = formData.get("assetId") as string;
+    const name = formData.get("name") as string;
+    const slug = formData.get("slug") as string;
+    const description = formData.get("description") as string;
+    const brand = formData.get("brand") as string;
+    const model = formData.get("model") as string;
+    const imageUrl = formData.get("imageUrl") as string;
+    const categoryId = formData.get("categoryId") as string;
+    const locationId = formData.get("locationId") as string;
+    const status = formData.get("status") as string;
+    const skillLevel = formData.get("skillLevel") as string;
+    const replacementCost = formData.get("replacementCost") as string;
+    const serialNumber = formData.get("serialNumber") as string;
+    const conditionNotes = formData.get("conditionNotes") as string;
+    const specificationsStr = formData.get("specifications") as string;
+    const safetyInfo = formData.get("safetyInfo") as string;
+    const userManualUrl = formData.get("userManualUrl") as string;
+    const quickStartGuideUrl = formData.get("quickStartGuideUrl") as string;
+    const isActive = formData.get("isActive") === "true";
+
+    if (!name || !slug) {
+      return {
+        success: false,
+        error: "Name and slug are required.",
+      };
+    }
+
+    const validStatuses = ["available", "checked_out", "reserved", "maintenance", "retired"];
+    if (status && !validStatuses.includes(status)) {
+      return {
+        success: false,
+        error: "Invalid status.",
+      };
+    }
+
+    const validSkillLevels = ["beginner", "intermediate", "advanced", "expert", ""];
+    if (skillLevel && !validSkillLevels.includes(skillLevel)) {
+      return {
+        success: false,
+        error: "Invalid skill level.",
+      };
+    }
+
+    let specifications = null;
+    if (specificationsStr) {
+      try {
+        specifications = JSON.parse(specificationsStr);
+      } catch {
+        return {
+          success: false,
+          error: "Invalid specifications JSON format.",
+        };
+      }
+    }
+
+    const inserted = await db
+      .insert(tools)
+      .values({
+        assetId: assetId || null,
+        name,
+        slug,
+        description: description || null,
+        brand: brand || null,
+        model: model || null,
+        imageUrl: imageUrl || null,
+        categoryId: categoryId || null,
+        locationId: locationId || null,
+        status: (status as "available" | "checked_out" | "reserved" | "maintenance" | "retired") || "available",
+        skillLevel: (skillLevel as "beginner" | "intermediate" | "advanced" | "expert") || null,
+        replacementCost: replacementCost || null,
+        serialNumber: serialNumber || null,
+        conditionNotes: conditionNotes || null,
+        specifications,
+        safetyInfo: safetyInfo || null,
+        userManualUrl: userManualUrl || null,
+        quickStartGuideUrl: quickStartGuideUrl || null,
+        isActive,
+      })
+      .returning({ id: tools.id });
+
+    newToolId = inserted[0]?.id ?? null;
+
+    revalidatePath("/admin/tools");
+  } catch (error) {
+    console.error("Error creating tool:", error);
+    return {
+      success: false,
+      error: "Failed to create tool. It's possible the slug or asset ID already exists.",
+    };
+  }
+
+  if (newToolId) {
+    redirect(`/admin/tools/${newToolId}`);
+  }
+
+  return { success: true, error: null };
+}
