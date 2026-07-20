@@ -96,20 +96,24 @@ export default async function HomePage() {
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <Button
-                size="lg"
-                className="bg-white text-blue-700 hover:bg-blue-50 shadow-lg"
-                asChild
-              >
-                <Link href="/tools">Browse Tools</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 bg-transparent"
-                asChild
-              >
-                <Link href="/auth/register">Become a Member</Link>
-              </Button>
+  size="lg"
+  className="bg-white shadow-lg hover:bg-blue-50"
+  asChild
+>
+  <Link href="/tools" className="!text-blue-700 font-semibold">
+    Browse Tools
+  </Link>
+</Button>
+<Button
+  size="lg"
+  variant="outline"
+  className="border-2 border-white bg-transparent hover:bg-white/10"
+  asChild
+>
+  <Link href="/auth/register" className="!text-white font-semibold">
+    Become a Member
+  </Link>
+</Button>
             </div>
           </div>
         </div>
