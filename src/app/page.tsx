@@ -95,25 +95,18 @@ export default async function HomePage() {
               imagine.
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Button
-  size="lg"
-  className="bg-white shadow-lg hover:bg-blue-50"
-  asChild
->
-  <Link href="/tools" className="!text-blue-700 font-semibold">
-    Browse Tools
-  </Link>
-</Button>
-<Button
-  size="lg"
-  variant="outline"
-  className="border-2 border-white bg-transparent hover:bg-white/10"
-  asChild
->
-  <Link href="/auth/register" className="!text-white font-semibold">
-    Become a Member
-  </Link>
-</Button>
+              <Link
+                href="/tools"
+                className="inline-flex items-center justify-center rounded-md bg-white px-8 py-3 text-base font-semibold text-blue-700 shadow-lg transition hover:bg-blue-50"
+              >
+                Browse Tools
+              </Link>
+              <Link
+                href="/auth/register"
+                className="inline-flex items-center justify-center rounded-md border-2 border-white bg-transparent px-8 py-3 text-base font-semibold text-white transition hover:bg-white hover:text-blue-700"
+              >
+                Become a Member
+              </Link>
             </div>
           </div>
         </div>
