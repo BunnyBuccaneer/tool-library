@@ -502,3 +502,106 @@ export async function updateReservationNotes(
     return { success: false, error: "Failed to update notes." };
   }
 }
+// ─── Create reservation (admin) ───────────────────────────────────────────────
+
+export async function createReservationAsAdmin(
+  _prevState: { success: boolean; error: string | null; reservationId?: string },
+  formData: FormData
+): Promise<{ success: boolean; error: string | null; reservationId?: string }> {
+  try {
+    await requireAdminAuth();
+
+    const toolId = formData.get("toolId") as string;
+    const userId = formData.get("userId") as string;
+    const locationId = formData.get("locationId") as string;
+    const pickupDate = formData.get("pickupDate") as string;
+    const pickupTime = formData.get("pickupTime") as string;
+    const returnDate = formData.get("returnDate") as string;
+    const returnTime = formData.get("returnTime") as string;
+    const notes = formData.get("notes") as string;
+    const status = (formData.get("status") as string) || "confirmed";
+
+    if (!toolId || !userId || !pickupDate || !returnDate) {
+      return {
+        success: false,
+        error: "Tool, member, pickup date, and return date are required.",
+      };
+    }
+
+    if (pickupDate > returnDate) {
+      return {
+        success: false,
+        error: "Return date must be on or after pickup date.",
+      };
+    }
+
+    const validStatuses = ["pending", "confirmed"];
+    if (!validStatuses.includes(status)) {
+      return {
+        success: false,
+        error: "Invalid initial status. Must be pending or confirmed.",
+      };
+    }
+
+    // Check for conflicts
+    const conflicts = await checkReservationConflicts(
+      toolId,
+      pickupDate,
+      returnDate
+    );
+    if (conflicts.hasConflict) {
+      return {
+        success: false,
+        error: `This tool has ${conflicts.conflicts.length} conflicting reservation(s) in that date range.`,
+      };
+    }
+
+    // Fetch tool to get default location if not provided
+    const [tool] = await db
+      .select({
+        id: tools.id,
+        status: tools.status,
+        locationId: tools.locationId,
+      })
+      .from(tools)
+      .where(eq(tools.id, toolId))
+      .limit(1);
+
+    if (!tool) {
+      return { success: false, error: "Tool not found." };
+    }
+
+    const [newReservation] = await db
+      .insert(reservations)
+      .values({
+        toolId,
+        userId,
+        locationId: locationId || tool.locationId,
+        pickupDate,
+        pickupTime: to24HourTime(pickupTime),
+        returnDate,
+        returnTime: to24HourTime(returnTime),
+        notes: notes || null,
+        status: status as "pending" | "confirmed",
+      })
+      .returning({ id: reservations.id });
+
+    // If admin created as confirmed, mark tool as reserved
+    if (status === "confirmed") {
+      await db
+        .update(tools)
+        .set({ status: "reserved", updatedAt: new Date() })
+        .where(eq(tools.id, toolId));
+    }
+
+    revalidatePath("/admin/reservations");
+
+    return { success: true, error: null, reservationId: newReservation.id };
+  } catch (error) {
+    console.error("createReservationAsAdmin error:", error);
+    return {
+      success: false,
+      error: "Failed to create reservation. Please try again.",
+    };
+  }
+}
