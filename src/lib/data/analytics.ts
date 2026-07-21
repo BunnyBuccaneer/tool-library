@@ -315,7 +315,7 @@ export async function getReplacementCandidates(): Promise<ReplacementCandidate[]
   const maintCostSq = db
     .select({
       toolId: toolMaintenanceRecords.toolId,
-      total: sql<string>`coalesce(sum(${toolMaintenanceRecords.cost}::numeric), 0)`.as("total"),
+      total: sql<string>`coalesce(sum(${toolMaintenanceRecords.cost}::numeric), 0)`.as("maint_total"),
     })
     .from(toolMaintenanceRecords)
     .groupBy(toolMaintenanceRecords.toolId)
@@ -324,7 +324,7 @@ export async function getReplacementCandidates(): Promise<ReplacementCandidate[]
   const repairCostSq = db
     .select({
       toolId: repairs.toolId,
-      total: sql<string>`coalesce(sum(${repairs.actualCost}::numeric), 0)`.as("total"),
+      total: sql<string>`coalesce(sum(${repairs.actualCost}::numeric), 0)`.as("repair_total"),
       repairCount: count().as("repair_count"),
       lastRepair: sql<Date>`max(${repairs.createdAt})`.as("last_repair"),
     })
@@ -352,7 +352,7 @@ export async function getReplacementCandidates(): Promise<ReplacementCandidate[]
     .where(eq(tools.isActive, true))
     .orderBy(
       desc(
-        sql`coalesce(${maintCostSq.total}::numeric, 0) + coalesce(${repairCostSq.total}::numeric, 0)`
+        sql`coalesce("maint_cost"."maint_total"::numeric, 0) + coalesce("repair_cost"."repair_total"::numeric, 0)`
       )
     );
 
