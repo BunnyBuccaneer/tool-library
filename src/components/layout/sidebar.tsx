@@ -13,6 +13,15 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Award,
+  DollarSign,
+  ClipboardCheck,
+  AlertCircle,
+  HardHat,
+  Bell,
+  Handshake,
+  Package,
+  Hammer,
 } from "lucide-react";
 import { useState } from "react";
 import type { Role } from "@/lib/permissions";
@@ -51,10 +60,55 @@ const navItems: NavItem[] = [
     permission: "reservations:view_all",
   },
   {
+    label: "Rentals",
+    href: "/admin/rentals",
+    icon: Package,
+  },
+  {
     label: "Locations",
     href: "/admin/locations",
     icon: MapPin,
     permission: "locations:view",
+  },
+  {
+    label: "Certifications",
+    href: "/admin/certifications",
+    icon: Award,
+  },
+  {
+    label: "Maintenance",
+    href: "/admin/maintenance",
+    icon: HardHat,
+  },
+  {
+    label: "Repairs",
+    href: "/admin/repairs",
+    icon: Hammer,
+  },
+  {
+    label: "Inspections",
+    href: "/admin/inspections",
+    icon: ClipboardCheck,
+  },
+  {
+    label: "Issues",
+    href: "/admin/issues",
+    icon: AlertCircle,
+  },
+  {
+    label: "Partners",
+    href: "/admin/partners",
+    icon: Handshake,
+  },
+  {
+    label: "Finance",
+    href: "/admin/finance",
+    icon: DollarSign,
+  },
+  {
+    label: "Notifications",
+    href: "/admin/notifications",
+    icon: Bell,
   },
   {
     label: "Reports",
@@ -90,7 +144,7 @@ export function Sidebar({ userRole }: SidebarProps) {
       )}
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
+      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4 shrink-0">
         {!collapsed && (
           <Link href="/admin" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-sm">
@@ -112,7 +166,7 @@ export function Sidebar({ userRole }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-3">
+      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {filteredItems.map((item) => {
           const isActive =
             pathname === item.href ||
