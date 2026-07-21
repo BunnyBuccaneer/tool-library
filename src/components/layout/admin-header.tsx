@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -20,11 +21,15 @@ export function AdminHeader() {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Notifications placeholder */}
-        <button className="relative rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+        {/* Notifications */}
+        <Link
+          href="/admin/notifications"
+          className="relative rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          title="Notifications"
+        >
           <Bell className="h-5 w-5" />
           <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
-        </button>
+        </Link>
 
         {/* User info */}
         {session?.user && (
