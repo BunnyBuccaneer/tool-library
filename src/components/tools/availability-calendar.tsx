@@ -83,71 +83,73 @@ export function AvailabilityCalendar({
       </div>
 
       <div className="flex justify-center">
-        <DayPicker
-          mode="range"
-          selected={selectedRange}
-          onSelect={handleSelect}
-          month={month}
-          onMonthChange={setMonth}
-          disabled={disabledDays}
-          numberOfMonths={1}
-          showOutsideDays={false}
-          className="p-0"
-          classNames={{
-            months: "flex flex-col space-y-4",
-            month: "space-y-4",
-            month_caption: "flex justify-center pt-1 relative items-center mb-2",
-            caption_label: "text-sm font-semibold text-slate-900",
-            nav: "space-x-1 flex items-center",
-            button_previous: cn(
-              buttonVariants({ variant: "outline" }),
-              "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 absolute left-1"
-            ),
-            button_next: cn(
-              buttonVariants({ variant: "outline" }),
-              "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 absolute right-1"
-            ),
-            month_grid: "w-full border-collapse space-y-1",
-            weekdays: "flex justify-between",
-            weekday: "text-slate-400 rounded-md w-9 font-medium text-[0.8rem] text-center",
-            week: "flex w-full mt-2 justify-between",
-            day: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-lg [&:has([aria-selected].day-outside)]:bg-slate-50 [&:has([aria-selected])]:bg-blue-50 first:[&:has([aria-selected])]:rounded-l-lg last:[&:has([aria-selected])]:rounded-r-lg focus-within:relative focus-within:z-20",
-            day_button: cn(
-              buttonVariants({ variant: "ghost" }),
-              "h-9 w-9 p-0 font-normal hover:bg-slate-100 rounded-lg text-slate-900"
-            ),
-            selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-600 focus:text-white rounded-lg",
-            today: "border-2 border-blue-600 text-slate-900 rounded-lg font-semibold",
-            outside: "text-slate-300 opacity-50",
-            disabled: "text-slate-300 opacity-40 line-through cursor-not-allowed hover:bg-transparent",
-            range_middle: "bg-blue-50 text-blue-900 hover:bg-blue-100 rounded-none",
-            range_start: "bg-blue-600 text-white rounded-l-lg",
-            range_end: "bg-blue-600 text-white rounded-r-lg",
-            hidden: "invisible",
-          }}
-          components={{
-            Chevron: ({ orientation }) => 
-              orientation === "left" ? (
-                <ChevronLeft className="h-4 w-4 text-slate-600" />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-slate-600" />
+        <div className="w-full max-w-[350px]">
+          <DayPicker
+            mode="range"
+            selected={selectedRange}
+            onSelect={handleSelect}
+            month={month}
+            onMonthChange={setMonth}
+            disabled={disabledDays}
+            numberOfMonths={1}
+            showOutsideDays={false}
+            className="p-0"
+            classNames={{
+              months: "flex flex-col space-y-4",
+              month: "space-y-4",
+              month_caption: "flex justify-center pt-1 relative items-center mb-2",
+              caption_label: "text-sm font-semibold text-slate-900",
+              nav: "space-x-1 flex items-center",
+              button_previous: cn(
+                buttonVariants({ variant: "outline" }),
+                "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 absolute left-1"
               ),
-          }}
-        />
+              button_next: cn(
+                buttonVariants({ variant: "outline" }),
+                "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 absolute right-1"
+              ),
+              month_grid: "w-full border-collapse space-y-1",
+              weekdays: "flex justify-between",
+              weekday: "text-slate-400 rounded-md w-9 font-medium text-[0.8rem] text-center",
+              week: "flex w-full mt-2 justify-between",
+              day: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-full [&:has([aria-selected].day-outside)]:bg-slate-50 [&:has([aria-selected])]:bg-blue-50 first:[&:has([aria-selected])]:rounded-l-full last:[&:has([aria-selected])]:rounded-r-full focus-within:relative focus-within:z-20",
+              day_button: cn(
+                buttonVariants({ variant: "ghost" }),
+                "h-9 w-9 p-0 font-normal hover:bg-slate-100 rounded-full text-slate-900"
+              ),
+              selected: "bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-600 focus:text-white",
+              today: "border-2 border-blue-600 text-slate-900 rounded-full font-semibold",
+              outside: "text-slate-300 opacity-50",
+              disabled: "text-slate-300 opacity-40 line-through cursor-not-allowed hover:bg-transparent",
+              range_middle: "bg-blue-50 text-blue-900 hover:bg-blue-100 rounded-none",
+              range_start: "bg-blue-600 text-white rounded-l-full rounded-r-none",
+              range_end: "bg-blue-600 text-white rounded-r-full rounded-l-none",
+              hidden: "invisible",
+            }}
+            components={{
+              Chevron: ({ orientation }) => 
+                orientation === "left" ? (
+                  <ChevronLeft className="h-4 w-4 text-slate-600" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-slate-600" />
+                ),
+            }}
+          />
+        </div>
       </div>
 
       {/* Legend */}
       <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100 text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="w-3.5 h-3.5 rounded-md bg-blue-600" />
+          <div className="w-3.5 h-3.5 rounded-full bg-blue-600" />
           <span className="text-slate-600 font-medium">Selected</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3.5 h-3.5 rounded-md bg-slate-100 border border-slate-200 line-through opacity-50" />
+          <div className="w-3.5 h-3.5 rounded-full bg-slate-100 border border-slate-200 line-through opacity-50" />
           <span className="text-slate-600 font-medium">Unavailable</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3.5 h-3.5 rounded-md border-2 border-blue-600" />
+          <div className="w-3.5 h-3.5 rounded-full border-2 border-blue-600" />
           <span className="text-slate-600 font-medium">Today</span>
         </div>
       </div>

@@ -217,7 +217,10 @@ export default async function AdminReservationsPage({ searchParams }: PageProps)
           title="Reservations"
           description="Manage tool reservations, approvals, and returns"
         />
-        <button className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shrink-0">
+        <Link
+          href="/admin/reservations/new"
+          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shrink-0"
+        >
           <svg
             className="w-4 h-4"
             fill="none"
@@ -232,7 +235,7 @@ export default async function AdminReservationsPage({ searchParams }: PageProps)
             />
           </svg>
           New Reservation
-        </button>
+        </Link>
       </div>
 
       {/* Stats */}

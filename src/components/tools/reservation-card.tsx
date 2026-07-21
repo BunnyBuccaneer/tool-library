@@ -71,17 +71,13 @@ export function ReservationCard({
     if (!hasValidDates || !userId) return;
 
     startTransition(async () => {
-      // Use date-fns format to safely pass clean date strings without timezone shifts
-      const formattedPickup = format(dateRange.from!, "yyyy-MM-dd");
-      const formattedReturn = format(dateRange.to!, "yyyy-MM-dd");
-
       const response = await createReservation({
         toolId,
         userId,
         locationId: location?.id,
-        pickupDate: formattedPickup,
+        pickupDate: dateRange.from!.toISOString(),
         pickupTime: pickupTime || undefined,
-        returnDate: formattedReturn,
+        returnDate: dateRange.to!.toISOString(),
         returnTime: returnTime || undefined,
       });
 
