@@ -1,10 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { eq, and } from "drizzle-orm";
+import { db } from "@/db";
+import { savedProjects } from "@/db/schema";
+import { getDemoUserId } from "@/lib/auth-helpers";
 import { getProjectBySlug } from "@/lib/data/projects";
 import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 import { ToolStatusBadge } from "@/components/ui/tool-status-badge";
 import { ReserveToolsButton } from "@/components/projects/reserve-tools-button";
-
+import SaveProjectButton from "@/components/projects/SaveProjectButton";
 export const dynamic = "force-dynamic";
 
 interface ProjectDetailPageProps {
@@ -17,6 +21,25 @@ interface StepOverview {
   description: string;
 }
 
+async function isProjectSaved(projectId: string): Promise<boolean> {
+  try {
+    const userId = await getDemoUserId();
+    const rows = await db
+      .select({ id: savedProjects.id })
+      .from(savedProjects)
+      .where(
+        and(
+          eq(savedProjects.userId, userId),
+          eq(savedProjects.projectId, projectId)
+        )
+      )
+      .limit(1);
+    return rows.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export default async function ProjectDetailPage({
   params,
 }: ProjectDetailPageProps) {
@@ -26,6 +49,8 @@ export default async function ProjectDetailPage({
   if (!project) {
     notFound();
   }
+
+  const initialSaved = await isProjectSaved(project.id);
 
   const safetyNotes = Array.isArray(project.safetyNotes)
     ? (project.safetyNotes as string[])
@@ -100,9 +125,17 @@ export default async function ProjectDetailPage({
                   </span>
                 )}
               </div>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
-                {project.name}
-              </h1>
+
+              <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                  {project.name}
+                </h1>
+                <SaveProjectButton
+                  projectId={project.id}
+                  initialSaved={initialSaved}
+                />
+              </div>
+
               {project.description && (
                 <p className="mt-4 text-lg text-slate-600">{project.description}</p>
               )}

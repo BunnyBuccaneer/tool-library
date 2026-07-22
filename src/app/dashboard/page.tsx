@@ -17,8 +17,8 @@ export default async function DashboardPage() {
 
   const user = session.user;
 
-  // Uses role-based access, ADMIN_EMAILS fallback, and database role lookup.
-const showAdminLink = await checkIsAdmin(user.email ?? "", user.role ?? "member");
+  const showAdminLink = await checkIsAdmin(user.email ?? "", user.role ?? "member");
+
   const quickActions = [
     {
       title: "Browse Tools",
@@ -86,11 +86,32 @@ const showAdminLink = await checkIsAdmin(user.email ?? "", user.role ?? "member"
         </svg>
       ),
     },
+    {
+      title: "My Projects",
+      description: "View and organize your saved tool collections.",
+      href: "/projects",
+      linkLabel: "View projects",
+      color: "bg-amber-100 text-amber-600",
+      icon: (
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+          />
+        </svg>
+      ),
+    },
   ];
 
   return (
     <div className="min-h-screen bg-slate-100">
-      {/* Header */}
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/dashboard" className="flex items-center gap-2">
@@ -145,7 +166,6 @@ const showAdminLink = await checkIsAdmin(user.email ?? "", user.role ?? "member"
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900">
@@ -184,8 +204,7 @@ const showAdminLink = await checkIsAdmin(user.email ?? "", user.role ?? "member"
           </Link>
         )}
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {quickActions.map((action) => (
             <div
               key={action.title}
@@ -216,7 +235,6 @@ const showAdminLink = await checkIsAdmin(user.email ?? "", user.role ?? "member"
           ))}
         </div>
 
-        {/* Account Information */}
         <div className="mt-8 rounded-xl border border-slate-200 bg-white p-6">
           <h2 className="mb-4 text-lg font-semibold text-slate-900">
             Account Information

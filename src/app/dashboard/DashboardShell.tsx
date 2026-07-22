@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/rentals", label: "Current Rentals", icon: "🔧" },
   { href: "/dashboard/reservations", label: "Reservations", icon: "📋" },
   { href: "/dashboard/history", label: "History", icon: "📜" },
-  { href: "/dashboard/favorites", label: "Favorites", icon: "❤️" },
+  { href: "/dashboard/favorites", label: "Favorite Tools", icon: "❤️" },
   { href: "/dashboard/saved-projects", label: "Saved Projects", icon: "📌" },
   { href: "/dashboard/membership", label: "Membership", icon: "🎫" },
   { href: "/dashboard/notifications", label: "Notifications", icon: "🔔" },

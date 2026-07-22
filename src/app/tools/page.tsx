@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { CatalogFilters } from "@/components/tools/catalog-filters";
 import { ActiveFilters } from "@/components/tools/active-filters";
 import { ToolGrid } from "@/components/tools/tool-grid";
+import { SiteHeader } from "@/components/SiteHeader";
 import type { CatalogSearchParams } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -77,6 +78,8 @@ export default async function ToolsCatalogPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <SiteHeader activePage="tools" />
+
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Page header */}
         <div className="mb-8">

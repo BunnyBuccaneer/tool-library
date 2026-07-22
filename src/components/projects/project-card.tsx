@@ -3,7 +3,7 @@ import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 import type { Project } from "@/db/schema";
 
 interface ProjectCardProps {
-  project: Project;
+  project: Project & { isSaved?: boolean };
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {

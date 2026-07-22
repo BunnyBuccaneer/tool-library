@@ -8,6 +8,7 @@ import { getProjects } from "@/lib/data/projects";
 import { ProjectCard } from "@/components/projects/project-card";
 import { ProjectFilters } from "@/components/projects/project-filters";
 import { Pagination } from "@/components/projects/pagination";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -53,36 +54,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="text-xl font-bold text-slate-900">
-              Tool Library
-            </Link>
-            <nav className="flex items-center gap-6">
-              <Link
-                href="/projects"
-                className="text-sm font-medium text-blue-600"
-              >
-                Projects
-              </Link>
-              <Link
-                href="/tools"
-                className="text-sm font-medium text-slate-600 hover:text-slate-900"
-              >
-                Tools
-              </Link>
-              <Link
-                href="/dashboard"
-                className="text-sm font-medium text-slate-600 hover:text-slate-900"
-              >
-                Dashboard
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <SiteHeader activePage="projects" />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Page header */}

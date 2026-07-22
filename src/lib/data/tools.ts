@@ -6,6 +6,7 @@ import {
   toolImages,
   toolAccessories,
   reservations,
+  favorites,
 } from "@/db/schema";
 import {
   eq,
@@ -38,7 +39,7 @@ async function withRetry<T>(
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       return await fn();
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error;
 
       console.log("\n====================================");
@@ -47,9 +48,12 @@ async function withRetry<T>(
 
       console.dir(error, { depth: null, colors: true });
 
-      if (error?.cause) {
+      if (error && typeof error === "object" && "cause" in error) {
         console.log("\nCAUSE:");
-        console.dir(error.cause, { depth: null, colors: true });
+        console.dir((error as { cause: unknown }).cause, {
+          depth: null,
+          colors: true,
+        });
       }
 
       if (error instanceof AggregateError) {
@@ -647,4 +651,20 @@ export async function getActiveLocations() {
       .where(eq(locations.status, "active"))
       .orderBy(asc(locations.name))
   );
+}
+
+/**
+ * Check if a tool is favorited by a given user.
+ */
+export async function isFavoritedByUser(
+  toolId: string,
+  userId: string
+): Promise<boolean> {
+  const [row] = await db
+    .select({ id: favorites.id })
+    .from(favorites)
+    .where(and(eq(favorites.toolId, toolId), eq(favorites.userId, userId)))
+    .limit(1);
+
+  return !!row;
 }
