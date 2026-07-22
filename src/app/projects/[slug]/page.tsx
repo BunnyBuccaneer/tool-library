@@ -9,6 +9,7 @@ import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 import { ToolStatusBadge } from "@/components/ui/tool-status-badge";
 import { ReserveToolsButton } from "@/components/projects/reserve-tools-button";
 import SaveProjectButton from "@/components/projects/SaveProjectButton";
+
 export const dynamic = "force-dynamic";
 
 interface ProjectDetailPageProps {
@@ -25,7 +26,7 @@ async function isProjectSaved(projectId: string): Promise<boolean> {
   try {
     const userId = await getDemoUserId();
     const rows = await db
-      .select({ id: savedProjects.id })
+      .select({ userId: savedProjects.userId })
       .from(savedProjects)
       .where(
         and(

@@ -29,6 +29,14 @@ import type {
   ToolDetailData,
 } from "@/lib/types";
 
+// UUID validation to prevent invalid database queries
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isValidUuid(value: string): boolean {
+  return UUID_REGEX.test(value);
+}
+
 async function withRetry<T>(
   fn: () => Promise<T>,
   retries = 3,
@@ -125,7 +133,7 @@ export async function getCatalogData(
     conditions.push(eq(tools.brand, params.brand));
   }
 
-  if (params.location && params.location !== "all") {
+  if (params.location && params.location !== "all" && isValidUuid(params.location)) {
     conditions.push(eq(tools.locationId, params.location));
   }
 
@@ -501,6 +509,11 @@ export async function getToolReservations(
   startDate: Date,
   endDate: Date
 ) {
+  // Guard against invalid tool IDs (e.g. "new") to prevent DB errors
+  if (!isValidUuid(toolId)) {
+    return [];
+  }
+
   return withRetry(() =>
     db
       .select({
@@ -526,6 +539,11 @@ export async function getRelatedTools(
   excludeToolId: string,
   limit: number = 3
 ): Promise<ToolWithRelations[]> {
+  // Guard against invalid IDs
+  if (!isValidUuid(categoryId) || !isValidUuid(excludeToolId)) {
+    return [];
+  }
+
   const rows = await withRetry(() =>
     db
       .select({
@@ -655,16 +673,21 @@ export async function getActiveLocations() {
 
 /**
  * Check if a tool is favorited by a given user.
+ * Uses composite primary key (userId, toolId) since favorites has no id column.
  */
 export async function isFavoritedByUser(
   toolId: string,
   userId: string
 ): Promise<boolean> {
-  const [row] = await db
-    .select({ id: favorites.id })
+  if (!isValidUuid(toolId) || !isValidUuid(userId)) {
+    return false;
+  }
+
+  const rows = await db
+    .select({ userId: favorites.userId })
     .from(favorites)
     .where(and(eq(favorites.toolId, toolId), eq(favorites.userId, userId)))
     .limit(1);
 
-  return !!row;
+  return rows.length > 0;
 }
