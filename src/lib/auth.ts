@@ -1,9 +1,10 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, memberProfiles } from "@/db/schema";
 import { isAdminRole, type Role } from "@/lib/permissions";
 
 // ── Type Augmentation ──────────────────────────────────────────────────
@@ -88,8 +89,60 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       },
     }),
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      // For Google sign-in, auto-create the user in our DB if they don't exist
+      if (account?.provider === "google" && user.email) {
+        const normalizedEmail = user.email.toLowerCase();
+
+        const [existing] = await db
+          .select({ id: users.id, isActive: users.isActive })
+          .from(users)
+          .where(eq(users.email, normalizedEmail))
+          .limit(1);
+
+        if (!existing) {
+          // Create user + member profile
+          const [newUser] = await db
+            .insert(users)
+            .values({
+              name: user.name ?? null,
+              email: normalizedEmail,
+              image: user.image ?? null,
+              role: "member",
+              isActive: true,
+              // hashedPassword left null — this user only uses Google
+            })
+            .returning({ id: users.id });
+
+          await db.insert(memberProfiles).values({
+            userId: newUser.id,
+            memberNumber: `M-${Date.now()}`,
+          });
+
+          user.id = newUser.id;
+          user.role = "member";
+        } else {
+          if (!existing.isActive) return false;
+          user.id = existing.id;
+
+          // Fetch role from DB (may not be "member")
+          const [full] = await db
+            .select({ role: users.role })
+            .from(users)
+            .where(eq(users.id, existing.id))
+            .limit(1);
+          user.role = full?.role ?? "member";
+        }
+      }
+
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id as string;
@@ -108,25 +161,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const isLoggedIn = !!session?.user;
       const { pathname } = request.nextUrl;
 
-      // Public routes — always accessible
       const publicRoutes = [
         "/",
         "/auth/login",
         "/auth/register",
         "/auth/error",
+        "/auth/forgot-password",
+        "/auth/reset-password",
       ];
       if (publicRoutes.includes(pathname)) return true;
 
-      // API health check
       if (pathname.startsWith("/api/health")) return true;
-
-      // Auth API routes
       if (pathname.startsWith("/api/auth")) return true;
 
-      // All other routes require authentication
       if (!isLoggedIn) return false;
 
-      // Admin routes require admin-level roles (employee and above)
       if (pathname.startsWith("/admin")) {
         return isAdminRole(session.user.role as Role);
       }

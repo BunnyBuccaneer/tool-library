@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { createHash } from "crypto";
 import bcrypt from "bcryptjs";
 import { db } from "@/db";
-import { users, memberProfiles } from "@/db/schema";
+import { users, memberProfiles, verificationTokens } from "@/db/schema";
 import { registerSchema } from "@/lib/validations/auth";
+
+function hashCode(code: string) {
+  return createHash("sha256").update(code).digest("hex");
+}
 
 export async function POST(request: Request) {
   try {
@@ -17,10 +22,37 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, password } = parsed.data;
+    const { name, email, password, code } = parsed.data;
     const normalizedEmail = email.toLowerCase();
 
-    // Check if user exists
+    // Verify the code
+    const hashed = hashCode(code);
+    const [tokenRow] = await db
+      .select()
+      .from(verificationTokens)
+      .where(
+        and(
+          eq(verificationTokens.identifier, normalizedEmail),
+          eq(verificationTokens.token, hashed)
+        )
+      )
+      .limit(1);
+
+    if (!tokenRow) {
+      return NextResponse.json(
+        { error: "Invalid verification code" },
+        { status: 400 }
+      );
+    }
+
+    if (tokenRow.expires < new Date()) {
+      return NextResponse.json(
+        { error: "Verification code has expired. Request a new one." },
+        { status: 400 }
+      );
+    }
+
+    // Double-check uniqueness (race condition safety)
     const [existing] = await db
       .select({ id: users.id })
       .from(users)
@@ -36,7 +68,6 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create user + member profile in sequence
     const [newUser] = await db
       .insert(users)
       .values({
@@ -48,9 +79,14 @@ export async function POST(request: Request) {
       .returning({ id: users.id, email: users.email });
 
     await db.insert(memberProfiles).values({
-  userId: newUser.id,
-  memberNumber: `M-${Date.now()}`,
-});
+      userId: newUser.id,
+      memberNumber: `M-${Date.now()}`,
+    });
+
+    // Consume the code
+    await db
+      .delete(verificationTokens)
+      .where(eq(verificationTokens.identifier, normalizedEmail));
 
     return NextResponse.json(
       { message: "Account created successfully", userId: newUser.id },

@@ -80,7 +80,12 @@ export default function LoginForm() {
           {...register("password")}
         />
       </div>
-
+<Link
+  href="/auth/forgot-password"
+  className="text-sm text-blue-600 hover:text-blue-500"
+>
+  Forgot password?
+</Link>
       <Button type="submit" className="w-full" loading={isLoading}>
         Sign In
       </Button>
